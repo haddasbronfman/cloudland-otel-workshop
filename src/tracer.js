@@ -6,8 +6,8 @@ const { SimpleSpanProcessor} = require('@opentelemetry/sdk-trace-base');
 const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
 const { Resource } = require('@opentelemetry/resources');
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
-// const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
-const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
+const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
+// const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
 
 
 
@@ -22,10 +22,9 @@ const provider = new NodeTracerProvider({
 
 // 2. create exporter
 const exporter = new OTLPTraceExporter({
-    url: 'https://collector.lambda.lupaproject.io/v1/traces'
-    // url: 'http://127.0.0.1:4317'
+    url: 'http://52.201.225.118:4317' //grpc
 });
-// Other options: JaegerExporter(), ZipkinExporter(), ConsoleSpanExporter()
+// Other options: url: "http://localhost:4318/v1/traces" for http, JaegerExporter(), ZipkinExporter(), ConsoleSpanExporter()
 
 // 3. create processor. give it our exporter:
 const processor = new SimpleSpanProcessor(exporter);
