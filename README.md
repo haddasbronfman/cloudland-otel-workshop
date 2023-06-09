@@ -1,6 +1,13 @@
-# cloudland2023-otel-workshop
+# cloudland2023-otel-workshop - How to Monitor and Troubleshoot Applications in Production using OpenTelemetry
 
-example of using opentelemetry for CloudLand 2023 workshop
+A tutorial for how to Monitor and Troubleshoot Applications in Production using OpenTelemetry
+
+## Table of Contents
+
+- [Step 1 - Build express app](#Step 1 - Build express app)
+- [Step 2 - Create a tracer](#Step 2 - Create a tracer)
+- [Step 3 - use tracer.js in the app](#Step 3 - use tracer.js in the app)
+- [Step 4 - Do you have docker installed? lets work localy](#Step 4 - Do you have docker installed? lets work localy)
 
 ## Step 1 - Build express app
 
