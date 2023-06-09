@@ -7,7 +7,6 @@ const WEATHER_API_URL = 'https://weather.workshop.epsagon.com/weather';
 const NEWS_API_URL = 'https://news.workshop.epsagon.com/news';
 const FACT_API_URL = 'https://facts.workshop.epsagon.com/facts';
 
-
 function getWeather(city = '') {
   const URL = `${WEATHER_API_URL}/${city}`
     return got(URL).json().catch((err) => null); // json
@@ -40,10 +39,15 @@ app.get('/proxy/:city', async(req, res) => {
     res.json(await got(`http://localhost:3000/digest/${req.params.city}`).json().catch((err) => null))
 })
 
+app.get('/', async(req, res) => {
+    // res.send('choose a city, and go to http://localhost:3000/proxy/:city to get information about it')
+    res.status(404).send('Error :(');
+})
+
 app.use('*', (req, res) => {
     res.status(404).send('Not Found');
 })
-app.listen(3000, () => console.log('App is now online at port 3000'));
+app.listen(3000, () => console.log('App is running at http://localhost:3000'));
 
 //module.exports.handler = slshttp(app)
 
