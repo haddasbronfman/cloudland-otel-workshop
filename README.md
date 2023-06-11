@@ -4,12 +4,18 @@ A tutorial for how to Monitor and Troubleshoot Applications in Production using 
 
 ## Table of Contents
 
-- [cloudland2023-otel-workshop](#cloudland2023-otel-workshop)
-  - [Table of Contents](#table-of-contents)
-  - [Step 1 - Build express app](#step-1---build-express-app)
-  - [Step 2 - Create a tracer](#step-2---create-a-tracer)
-  - [Step 3 - use tracer.js in the app](#step-3---use-tracerjs-in-the-app)
-  - [Step 4 - Do you have docker installed? lets work localy](#step-4---do-you-have-docker-installed-lets-work-localy)
+- [Pre requisites](#pre-requisites)
+- [Step 1 - Build express app](#step-1---build-express-app)
+- [Step 2 - Create a tracer](#step-2---create-a-tracer)
+- [Step 3 - use tracer.js in the app](#step-3---use-tracerjs-in-the-app)
+- [Step 4 - Do you have docker installed? lets work localy](#step-4---do-you-have-docker-installed-lets-work-localy)
+
+## Pre requisites
+
+1. IDE - We prefer to use VSCode for a better experience (other IDEs are fine)
+2. npm
+3. node
+4. docker is optional (enabled you to do the advanced part of this tutorial)
 
 ## Step 1 - Build express app
 
@@ -79,19 +85,19 @@ In this step we will create a file called tracer.js. this file is using open tel
 1. Create a new file `otelWorkshop/src/tracer.js`
 2. Add to the file the following code snippets one after the other:
 
-   The requested imports:
+   Add the required librearies:
 
     ```javascript
-        cosnt { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
-        const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
-        const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
-        const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
-        const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
-        const { registerInstrumentations } = require('@opentelemetry/instrumentation');
-        const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
-        const { SimpleSpanProcessor} = require('@opentelemetry/sdk-trace-base');
-        const { Resource } = require('@opentelemetry/resources');
-        diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
+    cosnt { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
+    const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
+    const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
+    const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
+    const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
+    const { registerInstrumentations } = require('@opentelemetry/instrumentation');
+    const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
+    const { SimpleSpanProcessor} = require('@opentelemetry/sdk-trace-base');
+    const { Resource } = require('@opentelemetry/resources');
+    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
     ```
 
    Create a tracer provider: the NodeTracerProvider object is responsible for creating and managing instance of the tracer - the component that manages the traces:
@@ -236,3 +242,4 @@ Now lets see how to run both the collector and Jaeger locally on your machine: y
 
 
 consider add db on the machine and access it. (redis maybe)
+create a span alone.
