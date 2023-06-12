@@ -7,21 +7,21 @@ A tutorial for how to Monitor and Troubleshoot Applications in Production using 
 - [Pre requisites](#pre-requisites)
 - [Step 1 - Build express app](#step-1---build-express-app)
 - [Step 2 - Create a tracer](#step-2---create-a-tracer)
-- [Step 3 - use tracer.js in the app](#step-3---use-tracerjs-in-the-app)
-- [Step 4 - Do you have docker installed? lets work localy](#step-4---do-you-have-docker-installed-lets-work-localy)
+- [Step 3 - Use tracer.js in the app](#step-3---use-tracerjs-in-the-app)
+- [Step 4 - Do you have docker installed? let's work localy](#step-4---do-you-have-docker-installed-lets-work-localy)
 
 ## Pre requisites
 
 1. IDE - We prefer to use VSCode for a better experience (other IDEs are fine)
 2. npm
 3. node
-4. docker is optional (enabled you to do the advanced part of this tutorial)
+4. docker is optional (enables you to do the advanced part of this tutorial)
 
 ## Step 1 - Build express app
 
 1. Create a new folder named otelWorkshop and `cd` into it.
 2. Run `npm init` to create a new package.json.
-3. Create new folder otelWorkshop/src and copy app.js to there. app.js is an express server:
+3. Create new folder otelWorkshop/src and copy `app.js` to there. `app.js` is an express server:
 
     ```javascript
    //app.js
@@ -72,20 +72,21 @@ A tutorial for how to Monitor and Troubleshoot Applications in Production using 
     })
     app.listen(3000, () => console.log('App is running at http://localhost:3000'));```
 
-4. run `npm install express got`
-5. from the folder path run `npm install`. verfy that node_modules and package-lock.json were generated.
-6. Run the app! `node src/app.js`
-7. you should see the log `App is running at http://localhost:3000`
-8. in you browser, go to <http://localhost:3000> and make sure you get a response.
+4. take a minute to look at this file. it is an express server listens to `/` and to `/:city`
+5. run `npm install express got`
+6. from the folder path run `npm install`. verfy that node_modules and package-lock.json were generated.
+7. Run the app! `node src/app.js`
+8. you should see the log `App is running at http://localhost:3000`
+9. in you browser, go to <http://localhost:3000> and make sure you get a response.
 
 ## Step 2 - Create a tracer
 
-In this step we will create a file called tracer.js. this file is using open telemetry API in order to get traces about the actions our app does. We will build it step by step.
+In this step we will create a file called `tracer.js`. this file is using open telemetry API in order to get traces about the actions our app does. We will build it step by step.
 
-1. Create a new file `otelWorkshop/src/tracer.js`
+1. Create a new empty file `otelWorkshop/src/tracer.js`
 2. Add to the file the following code snippets one after the other:
 
-   Add the required librearies:
+   **Add the required librearies:**
 
     ```javascript
     cosnt { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
@@ -100,7 +101,7 @@ In this step we will create a file called tracer.js. this file is using open tel
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
     ```
 
-   Create a tracer provider: the NodeTracerProvider object is responsible for creating and managing instance of the tracer - the component that manages the traces:
+   **Create a tracer provider:** the `NodeTracerProvider` object is responsible for creating and managing the instance of the tracer - the component that manages the traces. please not to enter you app name in the rigth place:
 
     ```javascript
     const provider = new NodeTracerProvider({
@@ -110,7 +111,7 @@ In this step we will create a file called tracer.js. this file is using open tel
     });
     ```
 
-    Create exporter: We will use OTLPTraceExporter, which sends the data to the collector in grpc protocol. The collector we use is openTelemetry Collector, which already runs on this aws machine: [http://52.102.225.118](http://52.102.225.118) on port 4317.
+    **Create exporter:** We will use `OTLPTraceExporter`, which sends the data to the collector in grpc protocol. The collector we use is openTelemetry Collector, which already runs on this aws machine: [http://52.102.225.118](http://52.102.225.118) on port 4317.
 
     ```javascript
     const exporter = new OTLPTraceExporter({
@@ -118,7 +119,7 @@ In this step we will create a file called tracer.js. this file is using open tel
     });
     ```
 
-    Create a processor: give it our exporter so it will know where to send the traces after processing.
+    **Create a processor:** give it our exporter so it will know where to send the traces after processing.
 
     ```javascript
     const processor = new SimpleSpanProcessor(exporter);
@@ -150,22 +151,20 @@ In this step we will create a file called tracer.js. this file is using open tel
     provider.register();
     ```
 
-Note what we did: we used OTel API, created a procesor, chose a collector, and an exporter.
-Now traces will be produces by OTel for each http request our application will get. Thos traces will be sent to the collector we defined using the exporter we defined.
+**Note what we did:** we used OTel SDK, created a procesor, chose a collector, and an exporter.
+Now traces will be produces by OTel for each http request our application will get. Those traces will be sent to the collector we defined using the exporter we defined.
 
 ## Step 3 - use tracer.js in the app
 
-Now we want that app.js will use our tracer.js
+Now we want that `app.js` will use our `tracer.js`
 
-1. Go to app.js and add this as the first line:
+1. Go to `app.js` and add this as the first line:
 
     ```javascript
     require('./tracer.js');
     ```
 
-    (Bonus: what happens if you add it as the last import?)
-
-2. Install all the new libraries needed for tracer.js:
+2. Install all the new libraries needed for `tracer.js`:
 
     ```bash
     npm install \
@@ -181,20 +180,19 @@ Now we want that app.js will use our tracer.js
     ```
 
 3. Run `node src/app.js`
-4. Choose a city and go to `http://localhost:3000/proxy/:city`.
+4. Choose a city and go to `http://localhost:3000/proxy/:city`
 5. Verify you get an answer from the express server.
 6. Now we want to see the traces that were produces because of this action!
 7. Go to `http://52.201.225.118:16686/` - this is the port jaeger is listening to on our AWS machine.
    you should see Jaeger UI. Jaeger is the backend we used that stores & presents the traces.
    To see your traces choose you application name under 'Services' and press 'Find Traces'.
 
-![Jaeger](~/Downloads/CloudLand2023/Jaeger.jpg)
+![Jaeger](Jaeger.jpg)
 
-## Step 4 - Do you have docker installed? lets work localy
+## Step 4 - Do you have docker installed? let's work localy
 
-Until now we used an already prepared collector I created for you, running on an AWS machine.
-Jaeger is also running on this machine.
-Now lets see how to run both the collector and Jaeger locally on your machine: you will need docker for that:
+Until now we used a collector and a backend (Jaeger) that runs on an already prepared AWS machine I created for you.
+Now let's see how to run both the collector and Jaeger locally on your machine using docker.
 
 1. copy this file to otelOwrkshop/src/otel-config.yaml. This is a configuration file for open telemetry collector.
 
@@ -206,7 +204,7 @@ Now lets see how to run both the collector and Jaeger locally on your machine: y
           grpc:
           http:
     processors: # processors are run on data between being received and being exported
-      batch: # we want to use batch span processor, which waits for a batch of spans before it exportes them
+      batch: # a batch span processor waits for a batch of spans before it exports them
     exporters: # where to export the traces
       jaeger: # 1. to jaeger
         endpoint: 0.0.0.0:14250
@@ -216,7 +214,7 @@ Now lets see how to run both the collector and Jaeger locally on your machine: y
         loglevel: debug
     service: # configure what components are enabled in the Collector
       pipelines: # A pipeline = a set of receivers + processors + exporters
-        traces: # here we define a traces pipline (you can also define metrics or logs ipelines)
+        traces: # here we define a traces pipline (you can also define metrics or logs pipelines)
           receivers: [otlp]
           processors: [batch]
           exporters: [logging, jaeger]
@@ -233,13 +231,14 @@ Now lets see how to run both the collector and Jaeger locally on your machine: y
     ```
 
 3. Run jaeger locally:
+  
+   ```bash
    docker run --rm -d --network=host --name jaeger  -p 6831:6831/udp   -p 6832:6832/udp   -p 5778:5778   -p 16686:16686   -p 14250:14250   -p 14268:14268   -p 14269:14269   jaegertracing/all-in-one:latest
+    ```
 
-4. Now repeat the steps we did before: run the app `node src/app.js`
+   Now repeat the steps we did before:
+
+4. Run the app `node src/app.js`
 5. Choose a city and go to `http://localhost:3000/proxy/:city`.
 6. Verify you get an answer from the express server.
 7. Go to Jaeger at `http://52.201.225.118:16686/`
-
-
-consider add db on the machine and access it. (redis maybe)
-create a span alone.

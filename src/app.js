@@ -1,7 +1,6 @@
 require('./tracer.js');
 const express = require('express');
 const got = require('got');
-const slshttp = require('serverless-http')
 
 const WEATHER_API_URL = 'https://weather.workshop.epsagon.com/weather';
 const NEWS_API_URL = 'https://news.workshop.epsagon.com/news';
@@ -40,8 +39,11 @@ app.get('/proxy/:city', async(req, res) => {
 })
 
 app.get('/', async(req, res) => {
-    // res.send('choose a city, and go to http://localhost:3000/proxy/:city to get information about it')
-    res.status(404).send('Error :(');
+    res.send('choose a city, and go to http://localhost:3000/proxy/:city to get information about it')
+})
+
+app.get('/error', async(req, res) => {
+    res.status(404).send('404 Not Found :(');
 })
 
 app.use('*', (req, res) => {
@@ -49,5 +51,4 @@ app.use('*', (req, res) => {
 })
 app.listen(3000, () => console.log('App is running at http://localhost:3000'));
 
-//module.exports.handler = slshttp(app)
 
