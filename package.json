@@ -1,7 +1,7 @@
 {
   "name": "cloudland-otel-workshop",
   "version": "1.0.0",
-  "description": "An appllication to demonstrate OpenTelemetry capabilities",
+  "description": "An application to demonstrate OpenTelemetry capabilities",
   "license": "MIT",
   "dependencies": {
     "@opentelemetry/api": "^1.4.1",

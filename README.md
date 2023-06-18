@@ -242,27 +242,27 @@ Now let's see how to run both the collector and Jaeger locally on your machine u
     version: "2"
     services:
 
-    # Jaeger
-    jaeger-all-in-one:
-        image: jaegertracing/all-in-one:latest
-        ports:
-            - "16686:16686"
-            - "14268"
-            - "14250"
+        # Jaeger
+        jaeger-all-in-one:
+            image: jaegertracing/all-in-one:latest
+            ports:
+                - "16686:16686"
+                - "14268"
+                - "14250"
 
-    # Collector
-    otel-collector:
-        image: otel/opentelemetry-collector-contrib:0.61.0
-        command: ["--config=/etc/otel-config.yaml", ""]
-        volumes:
-          - ./otel-config.yaml:/etc/otel-config.yaml
-        ports:
-            - "1888:1888"   # pprof extension
-            - "13133:13133" # health_check extension
-            - "4317:4317"   # OTLP gRPC receiver
-            - "55679:55679" # zpages extension
-        depends_on:
-            - jaeger-all-in-one
+        # Collector
+        otel-collector:
+            image: otel/opentelemetry-collector-contrib:0.61.0
+            command: ["--config=/etc/otel-config.yaml", ""]
+            volumes:
+            - ./otel-config.yaml:/etc/otel-config.yaml
+            ports:
+                - "1888:1888"   # pprof extension
+                - "13133:13133" # health_check extension
+                - "4317:4317"   # OTLP gRPC receiver
+                - "55679:55679" # zpages extension
+            depends_on:
+                - jaeger-all-in-one
     ```
 
 3. From `otelWorkshop/src` run `docker-compose up`.
@@ -280,11 +280,16 @@ Sometimes you don't need or want to write a `tracer.js` on your own. In that cas
 
    ```bash
    export OTEL_TRACES_EXPORTER="otlp"
-   export OTEL_EXPORTER_OTLP_ENDPOINT=“http://52.201.225.118:4317"
+   export OTEL_EXPORTER_OTLP_ENDPOINT="http://52.201.225.118:4317"
    export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
    export OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
-   export OTEL_SERVICE_NAME="your-service-name" #Note: chane you name!
    export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
+   ```
+
+   Run ths following and note to change your name:
+
+   ```bash
+   export OTEL_SERVICE_NAME="your-service-name" #Note: change your name!
    ```
 
 2. Run your app again: `node src/app.js`. Now the traces are exported as before but using the file `@opentelemetry/auto-instrumentations-node/register`.
@@ -305,13 +310,13 @@ To create a span manually:
 2. Choose a function and add this code to it:
 
     ```javascript
-        tracer.startActiveSpan('main', (span) => {
+        tracer.startActiveSpan('my-manual-span', (span) => {
             // do something    
         span.end(); // Don't forget to end the span!
         });
     ```
 
-    I chose this:
+    I chose this function:
 
     ```javascript
     app.get('/digest/:city', async (req, res) => {
