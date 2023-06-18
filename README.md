@@ -23,11 +23,27 @@ You will create a simple express server, then create a `tracer.js` file that use
 ## Step 1 - Build an express app
 
 1. Create a new folder named otelWorkshop and `cd` into it.
-2. Run `npm init` to create a new package.json.
+2. Copy this `package.json` to you `otelWorkshop` folder:
+
+   ```bash
+    {
+        "name": "cloudland-otel-workshop",
+        "version": "1.0.0",
+        "description": "An appllication to demonstrate OpenTelemetry capabilities",
+        "license": "MIT",
+        "dependencies": {
+            "axios": "^1.4.0",
+            "express": "^4.18.2",
+            "got": "11.8.1",
+        }
+    }
+
+   ```
+
 3. Create a new folder otelWorkshop/src and copy `app.js` to there. `app.js` is an express server:
 
     ```javascript
-   //app.js
+    //app.js
     const express = require('express');
     const got = require('got');
 
@@ -76,18 +92,17 @@ You will create a simple express server, then create a `tracer.js` file that use
     app.listen(3000, () => console.log('App is running at http://localhost:3000'));
     ```
 
-4. Take a minute to look at this file. It is an express server listens to `/` and to `/proxy/:city`
-5. Run `npm install express got`
-6. From `otelWorkshop` run `npm install`. verfy that node_modules and package-lock.json were generated.
-7. Run the app! `node src/app.js`
-8. You should see the log `App is running at http://localhost:3000`
-9. In you browser, go to <http://localhost:3000> and make sure you get a response.
+4. Take a minute to look at this file. It is an express server that listens to `/` and to `/proxy/:city`
+5. From `otelWorkshop/`, run `npm install`. verfy that `node_modules` and `package-lock.json` were generated.
+6. Run the app! `node src/app.js`
+7. You should see the log `App is running at http://localhost:3000"`
+8. In you browser, go to <http://localhost:3000> and make sure you get a response.
 
 ## Step 2 - Create a tracer
 
-In this step we will create a file called `tracer.js`. this file is using open telemetry API in order to get traces about the actions our app does. We will build it step by step.
+In this step, we will create a file called `tracer.js`. This file uses open telemetry API in order to get traces about the actions our app does. We will build it step by step.
 
-1. Create a new empty file `otelWorkshop/src/tracer.js`
+1. Create a new empty file: `otelWorkshop/src/tracer.js`
 2. Add to the file the following code snippets one after the other:
 
    **Add the required librearies:**
@@ -105,8 +120,8 @@ In this step we will create a file called `tracer.js`. this file is using open t
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
     ```
 
-   **Create a tracer provider:** the `NodeTracerProvider` object is responsible for creating and managing the instance of the tracer - the component that manages the traces.
-   please note to enter you app name in the rigth place:
+   **Create a tracer provider:** The `NodeTracerProvider` object is responsible for creating and managing the instance of the tracer - the component that manages the traces.
+   Please note to enter your app name in the right place:
 
     ```javascript
     const provider = new NodeTracerProvider({
