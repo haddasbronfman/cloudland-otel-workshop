@@ -1,4 +1,3 @@
-require('./tracer.js');
 const express = require('express');
 const got = require('got');
 const opentelemetry = require("@opentelemetry/api");
