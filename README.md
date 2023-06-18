@@ -1,14 +1,17 @@
 # cloudland2023-otel-workshop
 
-A tutorial for how to Monitor and Troubleshoot Applications in Production using OpenTelemetry
+A tutorial for how to monitor and troubleshoot applications in production using OpenTelemetry.
+You will create a simple express server, then create a `tracer.js` file that uses OpenTelemetry components and will produces traces from your application. In the last step you will see you traces in Jaeger backend.
 
 ## Table of Contents
 
-- [Pre requisites](#pre-requisites)
-- [Step 1 - Build express app](#step-1---build-express-app)
+- [Prerequisites](#pre-requisites)
+- [Step 1 - Build an express app](#step-1---build-express-app)
 - [Step 2 - Create a tracer](#step-2---create-a-tracer)
 - [Step 3 - Use tracer.js in the app](#step-3---use-tracerjs-in-the-app)
-- [Step 4 - Do you have docker installed? let's work localy](#step-4---do-you-have-docker-installed-lets-work-localy)
+- [Step 4 - Do you have docker installed? Let's work locally](#step-4---do-you-have-docker-installed-lets-work-localy)
+- [Step 5 - Automatic instrumentations](#step-5---automatic-instrumenations)
+- [Step 6 - Create a span manually](#step-6---create-a-span-manually)
 
 ## Pre requisites
 
@@ -17,14 +20,30 @@ A tutorial for how to Monitor and Troubleshoot Applications in Production using 
 3. node
 4. docker is optional (enables you to do the advanced part of this tutorial)
 
-## Step 1 - Build express app
+## Step 1 - Build an express app
 
 1. Create a new folder named otelWorkshop and `cd` into it.
-2. Run `npm init` to create a new package.json.
-3. Create new folder otelWorkshop/src and copy `app.js` to there. `app.js` is an express server:
+2. Copy this `package.json` to you `otelWorkshop` folder:
+
+   ```bash
+    {
+        "name": "cloudland-otel-workshop",
+        "version": "1.0.0",
+        "description": "An appllication to demonstrate OpenTelemetry capabilities",
+        "license": "MIT",
+        "dependencies": {
+            "axios": "^1.4.0",
+            "express": "^4.18.2",
+            "got": "11.8.1",
+        }
+    }
+
+   ```
+
+3. Create a new folder otelWorkshop/src and copy `app.js` to there. `app.js` is an express server:
 
     ```javascript
-   //app.js
+    //app.js
     const express = require('express');
     const got = require('got');
 
@@ -70,26 +89,26 @@ A tutorial for how to Monitor and Troubleshoot Applications in Production using 
     app.use('*', (req, res) => {
         res.status(404).send('Not Found');
     })
-    app.listen(3000, () => console.log('App is running at http://localhost:3000'));```
+    app.listen(3000, () => console.log('App is running at http://localhost:3000'));
+    ```
 
-4. take a minute to look at this file. it is an express server listens to `/` and to `/:city`
-5. run `npm install express got`
-6. from the folder path run `npm install`. verfy that node_modules and package-lock.json were generated.
-7. Run the app! `node src/app.js`
-8. you should see the log `App is running at http://localhost:3000`
-9. in you browser, go to <http://localhost:3000> and make sure you get a response.
+4. Take a minute to look at this file. It is an express server that listens to `/` and to `/proxy/:city`
+5. From `otelWorkshop/`, run `npm install`. verfy that `node_modules` and `package-lock.json` were generated.
+6. Run the app! `node src/app.js`
+7. You should see the log `App is running at http://localhost:3000"`
+8. In you browser, go to <http://localhost:3000> and make sure you get a response.
 
 ## Step 2 - Create a tracer
 
-In this step we will create a file called `tracer.js`. this file is using open telemetry API in order to get traces about the actions our app does. We will build it step by step.
+In this step, we will create a file called `tracer.js`. This file uses open telemetry API in order to get traces about the actions our app does. We will build it step by step.
 
-1. Create a new empty file `otelWorkshop/src/tracer.js`
+1. Create a new empty file: `otelWorkshop/src/tracer.js`
 2. Add to the file the following code snippets one after the other:
 
    **Add the required librearies:**
 
     ```javascript
-    cosnt { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
+    const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
     const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
     const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
     const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
@@ -101,7 +120,8 @@ In this step we will create a file called `tracer.js`. this file is using open t
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
     ```
 
-   **Create a tracer provider:** the `NodeTracerProvider` object is responsible for creating and managing the instance of the tracer - the component that manages the traces. please not to enter you app name in the rigth place:
+   **Create a tracer provider:** The `NodeTracerProvider` object is responsible for creating and managing the instance of the tracer - the component that manages the traces.
+   Please note to enter your app name in the right place:
 
     ```javascript
     const provider = new NodeTracerProvider({
@@ -131,7 +151,7 @@ In this step we will create a file called `tracer.js`. this file is using open t
     provider.addSpanProcessor(processor);
     ```
 
-    Choose what we want to instrument. traces of WHAT we want to see?
+    Sets the instrumentations:
 
     ```javascript
     registerInstrumentations({
@@ -158,13 +178,7 @@ Now traces will be produces by OTel for each http request our application will g
 
 Now we want that `app.js` will use our `tracer.js`
 
-1. Go to `app.js` and add this as the first line:
-
-    ```javascript
-    require('./tracer.js');
-    ```
-
-2. Install all the new libraries needed for `tracer.js`:
+1. Install all the new libraries needed for `tracer.js`:
 
     ```bash
     npm install \
@@ -179,13 +193,13 @@ Now we want that `app.js` will use our `tracer.js`
     @opentelemetry/resources
     ```
 
-3. Run `node src/app.js`
-4. Choose a city and go to `http://localhost:3000/proxy/:city`
-5. Verify you get an answer from the express server.
-6. Now we want to see the traces that were produces because of this action!
-7. Go to `http://52.201.225.118:16686/` - this is the port jaeger is listening to on our AWS machine.
+2. Run `node --require src/tracer.js src/app.js`
+3. Choose a city and go to `http://localhost:3000/proxy/:city`
+4. Verify you get an answer from the express server.
+5. Now we want to see the traces that were produces because of this action!
+6. Go to `http://52.201.225.118:16686/` - this is the port jaeger is listening to on our AWS machine.
    you should see Jaeger UI. Jaeger is the backend we used that stores & presents the traces.
-   To see your traces choose you application name under 'Services' and press 'Find Traces'.
+7. To see your traces choose you application name under 'Services' and press 'Find Traces'.
 
 ![Jaeger](Jaeger.jpg)
 
@@ -194,10 +208,10 @@ Now we want that `app.js` will use our `tracer.js`
 Until now we used a collector and a backend (Jaeger) that runs on an already prepared AWS machine I created for you.
 Now let's see how to run both the collector and Jaeger locally on your machine using docker.
 
-1. copy this file to otelOwrkshop/src/otel-config.yaml. This is a configuration file for open telemetry collector.
+1. copy this file to otelWorkshop/src/otel-config.yaml. This is a configuration file for open telemetry collector.
 
     ```yaml
-    //otel-config.yaml
+    # otel-config.yaml
     receivers: # specifies how data gets into the Collector
       otlp:
         protocols:
@@ -207,7 +221,7 @@ Now let's see how to run both the collector and Jaeger locally on your machine u
       batch: # a batch span processor waits for a batch of spans before it exports them
     exporters: # where to export the traces
       jaeger: # 1. to jaeger
-        endpoint: 0.0.0.0:14250
+        endpoint: jaeger-all-in-one:14250
         tls:
           insecure: true
       logging: # 2. to the logging
@@ -220,25 +234,99 @@ Now let's see how to run both the collector and Jaeger locally on your machine u
           exporters: [logging, jaeger]
     ```
 
-2. Run opentelemetry collector with the configuration file you created. pay attention to change the path of the file:
+2. Copy this file to `otelWorkshop/src/docker-compose.yaml`. This will run the open telemetry collector and jaeger on our machine:
 
-   ```bash
-   docker run --rm --network=host -p 13133:13133 \
-      -p 55678-55679:55678-55679 -p 4317:4317 -p 4318:4318 -p 8888:8888 -p 9411:9411 \
-      -v /path/otelWorkshop/src/otel-config.yaml:/otel-config.yaml \
-      --name otelcol otel/opentelemetry-collector-contrib \
-      --config otel-config.yaml;
+    ```yaml
+    version: "2"
+    services:
+
+    # Jaeger
+    jaeger-all-in-one:
+        image: jaegertracing/all-in-one:latest
+        ports:
+            - "16686:16686"
+            - "14268"
+            - "14250"
+
+    # Collector
+    otel-collector:
+        image: otel/opentelemetry-collector-contrib:0.61.0
+        command: ["--config=/etc/otel-config.yaml", ""]
+        volumes:
+          - ./otel-config.yaml:/etc/otel-config.yaml
+        ports:
+            - "1888:1888"   # pprof extension
+            - "13133:13133" # health_check extension
+            - "4317:4317"   # OTLP gRPC receiver
+            - "55679:55679" # zpages extension
+        depends_on:
+            - jaeger-all-in-one
     ```
 
-3. Run jaeger locally:
-  
+3. from `otelWorkshop/src` run `docker-compose up`.
+4. change the ip of OTLPTraceExporter url to: `'http://127.0.0.1:4317'`. This is because now the collector is running on you machine.
+5. Now repeat the steps we did before:
+6. Run the app `node --require src/tracer.js src/app.js`
+7. Choose a city and go to `http://localhost:3000/proxy/:city`.
+8. Verify you get an answer from the express server.
+9. Now go to Jaeger at you localhost: `http://localhost:16686/` and verify you see your traces.
+
+## Step 5 - Automatic instrumenations
+
+Sometimes you don't need or want to write a `tracer.js` on your own. In that case you can use "automatic instrumentations" which uses an already prepared tracer file:
+
+1. export the following environment variables:
+
    ```bash
-   docker run --rm -d --network=host --name jaeger  -p 6831:6831/udp   -p 6832:6832/udp   -p 5778:5778   -p 16686:16686   -p 14250:14250   -p 14268:14268   -p 14269:14269   jaegertracing/all-in-one:latest
-    ```
+   export OTEL_TRACES_EXPORTER="otlp"
+   export OTEL_EXPORTER_OTLP_ENDPOINT=“http://52.201.225.118:4317"
+   export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+   export OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
+   export OTEL_SERVICE_NAME="your-service-name" #Note: chane you name!
+   export NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
+   ```
 
-   Now repeat the steps we did before:
+2. run your app again: `node src/app.js`
+   now the traces are exported as before but using the file `@opentelemetry/auto-instrumentations-node/register`.
+3. go to jaeger on `http://52.201.225.118:16686/` and verify you see your traces.
 
-4. Run the app `node src/app.js`
-5. Choose a city and go to `http://localhost:3000/proxy/:city`.
-6. Verify you get an answer from the express server.
-7. Go to Jaeger at `http://52.201.225.118:16686/`
+## Step 6 - Create a span manually
+
+1. Sometime you want to define by yourself when a span strats and finishe. 
+2. To creat a span manually:
+   1. add this library to you `app.js` file
+
+        ```javascript
+        const opentelemetry = require("@opentelemetry/api");
+        const tracer = opentelemetry.trace.getTracer('you-service-tracer'); // NOTE TO CHANGE THE NAME!
+        ```
+
+   2. Choose a function and this code to it:
+
+        ```javascript
+            tracer.startActiveSpan('main', (span) => {
+                // do something    
+            span.end(); // Don't forget to end the span!
+            });
+        ```
+
+        I chose this:
+
+        ```javascript
+        app.get('/digest/:city', async (req, res) => {
+
+        tracer.startActiveSpan('main', async (span) => {
+            const city = req.params.city;
+            const [weather, news, fact] = await Promise.all([
+                getWeather(city),
+                getNews(city),
+                getFactForToday()
+            ]);
+            res.json({ weather, news, fact });      
+            span.end();
+        });
+        });
+        ```
+
+   3. Run the app again: Run `node --require src/tracer.js src/app.js`
+   4. go to jaeger and verify you see your traces. 

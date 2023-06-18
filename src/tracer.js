@@ -23,6 +23,7 @@ const provider = new NodeTracerProvider({
 // 2. create exporter
 const exporter = new OTLPTraceExporter({
     url: 'http://52.201.225.118:4317' //grpc
+    // url: 'http://127.0.0.1:4317' //grpc
 });
 // Other options: url: "http://localhost:4318/v1/traces" for http, JaegerExporter(), ZipkinExporter(), ConsoleSpanExporter()
 

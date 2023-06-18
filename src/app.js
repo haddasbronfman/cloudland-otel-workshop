@@ -1,10 +1,15 @@
 require('./tracer.js');
 const express = require('express');
 const got = require('got');
+const opentelemetry = require("@opentelemetry/api");
 
 const WEATHER_API_URL = 'https://weather.workshop.epsagon.com/weather';
 const NEWS_API_URL = 'https://news.workshop.epsagon.com/news';
 const FACT_API_URL = 'https://facts.workshop.epsagon.com/facts';
+
+const tracer = opentelemetry.trace.getTracer(
+    'haddas-service-tracer'
+  );
 
 function getWeather(city = '') {
   const URL = `${WEATHER_API_URL}/${city}`
@@ -25,13 +30,18 @@ function getFactForToday() {
 
 const app = express();
 app.get('/digest/:city', async (req, res) => {
-    const city = req.params.city;
-    const [weather, news, fact] = await Promise.all([
+
+    tracer.startActiveSpan('main', async (span) => {
+        const city = req.params.city;
+        const [weather, news, fact] = await Promise.all([
             getWeather(city),
             getNews(city),
             getFactForToday()
         ]);
-    res.json({ weather, news, fact });
+        res.json({ weather, news, fact });      
+        // Be sure to end the span!
+        span.end();
+    });
 });
 
 app.get('/proxy/:city', async(req, res) => {
