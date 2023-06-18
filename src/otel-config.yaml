@@ -1,0 +1,20 @@
+receivers: # specifies how data gets into the Collector
+  otlp:
+    protocols:
+      grpc:
+      http:
+processors: # processors are run on data between being received and being exported
+  batch: # a batch span processor waits for a batch of spans before it exports them
+exporters: # where to export the traces
+  jaeger: # 1. to jaeger
+    endpoint: jaeger-all-in-one:14250
+    tls:
+      insecure: true
+  logging: # 2. to the logging
+    loglevel: debug
+service: # configure what components are enabled in the Collector
+  pipelines: # A pipeline = a set of receivers + processors + exporters
+    traces: # here we define a traces pipline (you can also define metrics or logs pipelines)
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, jaeger]
