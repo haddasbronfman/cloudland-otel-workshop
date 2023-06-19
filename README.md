@@ -1,7 +1,7 @@
 # cloudland2023-otel-workshop
 
 A tutorial for monitoring and troubleshooting applications in production using OpenTelemetry.
-In this tutorial, you will create a simple express server, then create a `tracer.js` file that uses OpenTelemetry components and will produce traces from your application. In the last step you will see you traces in Jaeger backend.
+In this tutorial, you will create a simple express server, then create a `tracer.js` file that uses OpenTelemetry components and will produce traces from your application. In the last step, you will see your traces in Jaeger backend.
 
 ## Table of Contents
 
@@ -95,11 +95,11 @@ In this tutorial, you will create a simple express server, then create a `tracer
 5. From `otelWorkshop/`, run `npm install`. verfy that `node_modules` and `package-lock.json` were generated.
 6. Run the app! `node src/app.js`
 7. You should see the log `App is running at http://localhost:3000`
-8. In you browser, go to <http://localhost:3000> and make sure you get a response.
+8. In your browser, go to <http://localhost:3000> and make sure you get a response.
 
 ## Step 2 - Create a tracer
 
-In this step, we will create a file called `tracer.js`. This file uses open telemetry API in order to get traces about the actions our app does. We will build it step by step.
+In this step, we will create a file called `tracer.js`. This file uses the open telemetry API in order to get traces about the actions our app takes. We will build it step by step.
 
 1. Create a new empty file: `otelWorkshop/src/tracer.js`
 2. Add to the file the following code snippets one after the other:
@@ -126,7 +126,7 @@ In this step, we will create a file called `tracer.js`. This file uses open tele
     ```javascript
     const provider = new NodeTracerProvider({
     resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: '<enter you app name>'
+        [SemanticResourceAttributes.SERVICE_NAME]: '<enter your app name>'
     })
     });
     ```
@@ -173,7 +173,7 @@ In this step, we will create a file called `tracer.js`. This file uses open tele
     provider.register();
     ```
 
-**Note what we did:** we used OTel SDK - created a procesor, chose a collector, and an exporter.
+**Note what we did:** we used the OTel SDK - created a processor, chose a collector, and an exporter.
 Now traces will be produced by OTel for each HTTP request our application will get. Those traces will be sent to the collector we defined using the exporter we defined.
 
 ## Step 3 - use `tracer.js` in the app
@@ -197,20 +197,20 @@ Now we want that `app.js` will use our `tracer.js`
 
 2. Run `node --require ./src/tracer.js src/app.js`
 3. Choose a city and go to `http://localhost:3000/proxy/:city` (e.g berlin, dublin, jerusalem, etc.)
-4. Verify you get an answer from the express server.
+4. Verify that you get an answer from the express server.
 5. Now we want to see the traces that were produced because of this action!
 6. Go to `http://52.201.225.118:16686/` - this is the port jaeger is listening to on our AWS machine.
-   you should see Jaeger UI. Jaeger is the backend we used to store & present the traces.
+   You should see Jaeger UI. Jaeger is the backend we used to store & present the traces.
 7. To see your traces, choose your application name under 'Services' and press 'Find Traces' button.
 
 ![Jaeger](Jaeger.jpg)
 
 ## Step 4 - Do you have docker installed? let's work localy
 
-Until now we used a collector and a backend (Jaeger) that runs on an already prepared AWS machine I created for you.
+Until now we used a collector and a backend (Jaeger) that run on an already prepared AWS machine I created for you.
 Now let's see how to run both the collector and Jaeger locally on your machine using docker.
 
-1. Copy this file to `otelWorkshop/src/otel-config.yaml`. This is a configuration file for open telemetry collector.
+1. Copy this file to `otelWorkshop/src/otel-config.yaml`. This is a configuration file for the open telemetry collector.
 
     ```yaml
     # otel-config.yaml
@@ -228,7 +228,7 @@ Now let's see how to run both the collector and Jaeger locally on your machine u
           insecure: true
       logging: # 2. to the logging
         loglevel: debug
-    service: # configure what components are enabled in the Collector
+    service: # configure what components are enabled in the collector
       pipelines: # A pipeline = a set of receivers + processors + exporters
         traces: # here we define a traces pipline (you can also define metrics or logs pipelines)
           receivers: [otlp]
@@ -270,7 +270,7 @@ Now let's see how to run both the collector and Jaeger locally on your machine u
    Now repeat the steps we did before:
 5. Run the app: `node --require ./src/tracer.js src/app.js`
 6. Choose a city and go to `http://localhost:3000/proxy/:city`.
-7. Go to Jaeger at your localhost: `http://localhost:16686/` and verify you see your traces.
+7. Go to Jaeger at your localhost: `http://localhost:16686/` and verify that you see your traces.
 
 ## Step 5 - Automatic instrumenations
 
@@ -293,18 +293,18 @@ Sometimes you don't need or want to write a `tracer.js` on your own. In that cas
    ```
 
 2. Run your app again: `node src/app.js`. Now the traces are exported as before but using the file `@opentelemetry/auto-instrumentations-node/register`.
-3. Go to jaeger on `http://52.201.225.118:16686/` and verify you see your traces.
+3. Go to jaeger on `http://52.201.225.118:16686/` and verify that you see your traces.
 
 ## Step 6 - Create a span manually
 
-Sometime you want to define by yourself when a span strats and finishes.
+Sometimes you want to define by yourself when a span strats and finishes.
 To create a span manually:
 
 1. Add this library to your `app.js` file
 
     ```javascript
     const opentelemetry = require("@opentelemetry/api");
-    const tracer = opentelemetry.trace.getTracer('you-service-tracer'); // NOTE TO CHANGE THE NAME!
+    const tracer = opentelemetry.trace.getTracer('your-service-tracer'); // NOTE TO CHANGE THE NAME!
     ```
 
 2. Choose a function and add this code to it:
@@ -335,4 +335,4 @@ To create a span manually:
     ```
 
 3. Run the app again: `node --require ./src/tracer.js src/app.js`
-4. Go to jaeger and verify you see your traces.
+4. Go to jaeger and verify that you see your traces.
