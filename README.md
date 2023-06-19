@@ -196,7 +196,7 @@ Now we want `app.js` will use our `tracer.js`
     ```
 
 2. Run `node --require ./src/tracer.js src/app.js`
-3. Choose a city and go to `http://localhost:3000/proxy/:city` (e.g berlin, dublin, jerusalem, etc.)
+3. Choose a city and go to `http://localhost:3000/proxy/:city` (e.g. berlin, dublin, jerusalem, etc.)
 4. Verify that you get an answer from the express server.
 5. Now we want to see the traces that were produced because of this action!
 6. Go to `http://52.201.225.118:16686/` - this is the port Jaeger is listening to on our AWS machine.
