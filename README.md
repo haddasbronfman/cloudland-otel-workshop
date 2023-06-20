@@ -96,14 +96,14 @@ In this tutorial, you will create a simple express server, then create a `tracer
     ```
 
 4. Take a minute to look at this file. It is an express server that listens to `/` and to `/proxy/:city`
-5. From `otelWorkshop/`, run `npm install`. verfy that `node_modules` and `package-lock.json` were generated.
+5. From `otelWorkshop/`, run `npm install`. verify that `node_modules` and `package-lock.json` were generated.
 6. Run the app! `node src/app.js`
 7. You should see the log `App is running at http://localhost:3000`
 8. In your browser, go to <http://localhost:3000> and make sure you get a response.
 
 ## Step 2 - Create a tracer
 
-In this step, we will create a file called `tracer.js`. This file uses the open telemetry API to get traces of the actions our app takes. We will build it step by step.
+In this step, we will create a file called `tracer.js`. This file uses the OpenTelemetry API to get traces of the actions our app takes. We will build it step by step.
 
 1. Create a new empty file: `otelWorkshop/src/tracer.js`
 2. Add to the file the following code snippets one after the other:
@@ -130,7 +130,7 @@ In this step, we will create a file called `tracer.js`. This file uses the open 
     ```javascript
     const provider = new NodeTracerProvider({
         resource: new Resource({
-            [SemanticResourceAttributes.SERVICE_NAME]: '<enter your app name>'
+            [SemanticResourceAttributes.SERVICE_NAME]: '<enter your app name>' //Note: change your name!
         })
     });
     ```
@@ -214,7 +214,7 @@ Now we want that `app.js` will use our `tracer.js`
 Until now we used a collector and a backend (Jaeger) that run on an already prepared AWS machine I created for you.
 Now let's see how to run both the collector and Jaeger locally on your machine using docker.
 
-1. Copy this file to `otelWorkshop/src/otel-config.yaml`. This is a configuration file for the open telemetry collector.
+1. Copy this file to `otelWorkshop/src/otel-config.yaml`. This is a configuration file for the OpenTelemetry collector.
 
     ```yaml
     # otel-config.yaml
@@ -240,7 +240,7 @@ Now let's see how to run both the collector and Jaeger locally on your machine u
           exporters: [logging, jaeger]
     ```
 
-2. Copy this file to `otelWorkshop/src/docker-compose.yaml`. This will run the open telemetry collector and Jaeger on our machine:
+2. Copy this file to `otelWorkshop/src/docker-compose.yaml`. This will run the OpenTelemetry collector and Jaeger on our machine:
 
     ```yaml
     version: "2"
