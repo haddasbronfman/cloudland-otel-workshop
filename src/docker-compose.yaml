@@ -6,12 +6,12 @@ services:
     image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"
-      - "14268"
-      - "14250"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
 
 # Collector
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.61.0
+    image: otel/opentelemetry-collector-contrib:0.79.0
     command: ["--config=/etc/otel-config.yaml", ""]
     volumes:
       - ./otel-config.yaml:/etc/otel-config.yaml
